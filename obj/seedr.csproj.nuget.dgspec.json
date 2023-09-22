@@ -42,6 +42,10 @@
               "target": "Package",
               "version": "[7.0.11, )"
             },
+            "QBittorrent.Client": {
+              "target": "Package",
+              "version": "[1.8.23016.2, )"
+            },
             "nlog": {
               "target": "Package",
               "version": "[5.2.4, )"

@@ -1,4 +1,7 @@
 {
-    "library_path": "/mnt/movies/movies",
-    "download_path": "/mnt/data/Torrents"
+  "library_path": "/mnt/movies/movies",
+  "download_path": "Some path",
+  "torrent_client": "qbittorrent",
+  "torrent_client_url": "http://qbt.luna.net/",
+  "debug": true
 }

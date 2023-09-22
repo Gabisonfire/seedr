@@ -42,3 +42,5 @@
 /home/gabisonfire/Documents/seedr/bin/Debug/net7.0/runtimes/win-x64/native/e_sqlite3.dll
 /home/gabisonfire/Documents/seedr/bin/Debug/net7.0/runtimes/win-x86/native/e_sqlite3.dll
 /home/gabisonfire/Documents/seedr/obj/Debug/net7.0/seedr.csproj.CopyComplete
+/home/gabisonfire/Documents/seedr/bin/Debug/net7.0/Newtonsoft.Json.dll
+/home/gabisonfire/Documents/seedr/bin/Debug/net7.0/QBittorrent.Client.dll

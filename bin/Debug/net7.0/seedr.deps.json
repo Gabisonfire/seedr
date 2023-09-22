@@ -9,6 +9,7 @@
       "seedr/1.0.0": {
         "dependencies": {
           "Microsoft.Data.Sqlite": "7.0.11",
+          "QBittorrent.Client": "1.8.23016.2",
           "NLog": "5.2.4"
         },
         "runtime": {
@@ -32,11 +33,30 @@
           }
         }
       },
+      "Newtonsoft.Json/13.0.1": {
+        "runtime": {
+          "lib/netstandard2.0/Newtonsoft.Json.dll": {
+            "assemblyVersion": "13.0.0.0",
+            "fileVersion": "13.0.1.25517"
+          }
+        }
+      },
       "NLog/5.2.4": {
         "runtime": {
           "lib/netstandard2.0/NLog.dll": {
             "assemblyVersion": "5.0.0.0",
             "fileVersion": "5.2.4.2092"
+          }
+        }
+      },
+      "QBittorrent.Client/1.8.23016.2": {
+        "dependencies": {
+          "Newtonsoft.Json": "13.0.1"
+        },
+        "runtime": {
+          "lib/net6.0/QBittorrent.Client.dll": {
+            "assemblyVersion": "1.8.23016.2",
+            "fileVersion": "1.8.23016.2"
           }
         }
       },
@@ -216,12 +236,26 @@
       "path": "microsoft.data.sqlite.core/7.0.11",
       "hashPath": "microsoft.data.sqlite.core.7.0.11.nupkg.sha512"
     },
+    "Newtonsoft.Json/13.0.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-ppPFpBcvxdsfUonNcvITKqLl3bqxWbDCZIzDWHzjpdAHRFfZe0Dw9HmA0+za13IdyrgJwpkDTDA9fHaxOrt20A==",
+      "path": "newtonsoft.json/13.0.1",
+      "hashPath": "newtonsoft.json.13.0.1.nupkg.sha512"
+    },
     "NLog/5.2.4": {
       "type": "package",
       "serviceable": true,
       "sha512": "sha512-/qzds1Cp9rQD53La3mlWOmCHsFSbmT9BCb8q6k3eOrbOYDfdf3ZN1hBW7IDImUD6V8BfPfEFBhXGDLOEOQxHgQ==",
       "path": "nlog/5.2.4",
       "hashPath": "nlog.5.2.4.nupkg.sha512"
+    },
+    "QBittorrent.Client/1.8.23016.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-WI+6xtRkX+bJkZ1jmBYZ2vQq/OUeLUiRb0XNhM5DzRX0PbkU+lZe/jyG+UL6QK2bFTLiAu8qJ/QuZ3k7vy+10w==",
+      "path": "qbittorrent.client/1.8.23016.2",
+      "hashPath": "qbittorrent.client.1.8.23016.2.nupkg.sha512"
     },
     "SQLitePCLRaw.bundle_e_sqlite3/2.1.4": {
       "type": "package",

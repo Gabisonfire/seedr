@@ -1,12 +1,14 @@
 {
   "version": 2,
-  "dgSpecHash": "PGpZs/dmm0UuEkpkmw8clTgaXN+gBsWc2KveD+nHGasqfiIHjKL+ptuzr8nGpXPijoiDfldrYTubgi4V9OFGaA==",
+  "dgSpecHash": "VwD3ZqRtrdC0lgyAvqIeZG6Yl54AnKt1e3SJfc1wpXkmBWCqmndnJDc31A4Z/yLtLqm2byyGGy8gUF18xJYvNQ==",
   "success": true,
   "projectFilePath": "/home/gabisonfire/Documents/seedr/seedr.csproj",
   "expectedPackageFiles": [
     "/home/gabisonfire/.nuget/packages/microsoft.data.sqlite/7.0.11/microsoft.data.sqlite.7.0.11.nupkg.sha512",
     "/home/gabisonfire/.nuget/packages/microsoft.data.sqlite.core/7.0.11/microsoft.data.sqlite.core.7.0.11.nupkg.sha512",
+    "/home/gabisonfire/.nuget/packages/newtonsoft.json/13.0.1/newtonsoft.json.13.0.1.nupkg.sha512",
     "/home/gabisonfire/.nuget/packages/nlog/5.2.4/nlog.5.2.4.nupkg.sha512",
+    "/home/gabisonfire/.nuget/packages/qbittorrent.client/1.8.23016.2/qbittorrent.client.1.8.23016.2.nupkg.sha512",
     "/home/gabisonfire/.nuget/packages/sqlitepclraw.bundle_e_sqlite3/2.1.4/sqlitepclraw.bundle_e_sqlite3.2.1.4.nupkg.sha512",
     "/home/gabisonfire/.nuget/packages/sqlitepclraw.core/2.1.4/sqlitepclraw.core.2.1.4.nupkg.sha512",
     "/home/gabisonfire/.nuget/packages/sqlitepclraw.lib.e_sqlite3/2.1.4/sqlitepclraw.lib.e_sqlite3.2.1.4.nupkg.sha512",
