@@ -1,5 +1,7 @@
-﻿using NLog;
-using NLog.Config;
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using NLog;
+using NLog.Config;  
 
 namespace Seedr
 {
@@ -10,6 +12,7 @@ namespace Seedr
         public static Utils.Config config = new();
 
         public static List<Torrent> torrentPool = new();
+        public static List<Torrent> bufferTorrentPool = new();
 
         public static void Main(string[] args)
         {
@@ -32,24 +35,60 @@ namespace Seedr
             logger.Info("Seedr starting...");
             Database.InitDB();
             logger.Info("Connecting to torrent client...");
-            FetchTorrents();
+            ProcessTorrents();
         }
 
-        public static void FetchTorrents()
+        static void ProcessTorrents()
         {
-            logger.Info("Fetching torrents...");
+            //GetTorrentsFromClient();
+            torrentPool.Add(
+                new Torrent("test", "/home/gabisonfire/Downloads/lotr.zip")
+            );
+            // DEBUG
+            HashAllTorrents();
+            WriteHashes();
+        }
+
+        static void WriteHashes()
+        {
+            logger.Info("Writing hashes to database.");
+            foreach(var torrent in torrentPool)
+            {
+                Database.Write(torrent.ToMySQL());
+            }
+        }
+
+        static void GetTorrentsFromClient()
+        {
+            logger.Info("Fetching torrents from client...");
             switch(config.TorrentClient)
             {
                 case "qbittorrent":
                 Clients.Qbittorrent.FetchTorrents();
                 break;
             }
-            foreach(var t in torrentPool)
+        }
+
+        static void HashAllTorrents()
+        {
+            bufferTorrentPool.Clear();
+            var timer = new Stopwatch();
+            logger.Info("Hashing torrents, depending on your system, this might take a while.");
+            timer.Start();
+            foreach(var torrent in torrentPool)
             {
-                Console.WriteLine(t.ToString());
-                Hashing.GetChecksum(t.Path);
-                break;
+                logger.Debug($"Hashing: {torrent.Name}");
+                bufferTorrentPool.Add(Hashing.Hash(torrent));
             }
+            foreach(var torrent in bufferTorrentPool)
+            {
+                logger.Debug($"Hashed torrent: {torrent}");
+            }
+            timer.Stop();
+            logger.Info($"Hashing complete. Hashed {bufferTorrentPool.Count} torrents in {timer.Elapsed} using {config.HashAlgo}.");
+            torrentPool.Clear();
+            torrentPool.AddRange(bufferTorrentPool);
+            bufferTorrentPool.Clear();
         }
     }
 }

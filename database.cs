@@ -32,17 +32,24 @@ namespace Seedr
             string query = @"
             CREATE TABLE download_files 
             (
-                id INTEGER PRIMARY KEY,
-                path TEXT NOT NULL,
-                hash TEXT
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                path TEXT UNIQUE NOT NULL,
+                hash TEXT UNIQUE
             );
             CREATE TABLE library_files 
             (
-                id INTEGER PRIMARY KEY,
-                path TEXT NOT NULL,
-                hash TEXT
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                path TEXT UNIQUE NOT NULL,
+                hash TEXT UNIQUE
             );
             ";
+            var command = connection.CreateCommand();
+            command.CommandText = query;
+            command.ExecuteNonQuery();
+        }
+
+        public static void Write(string query)
+        {
             var command = connection.CreateCommand();
             command.CommandText = query;
             command.ExecuteNonQuery();

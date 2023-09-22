@@ -15,7 +15,15 @@ namespace Seedr
 
         public override string ToString()
         {
-            return $"{Name}: {Path}";
+            return $"{Name}: {Path} ({Hash})";
+        }
+
+        public string ToMySQL()
+        {
+            return
+            @$"
+            INSERT OR REPLACE INTO download_files('path', 'hash') VALUES('{Path}', '{Hash}');
+            ";
         }
     }
 

@@ -10,6 +10,7 @@ namespace Seedr
         public class Config
         {
             public static readonly string[] ALLOWED_CLIENTS = {"transmission", "qbittorrent"};
+            public static readonly string[] SUPPORTED_HASH = {"crc32", "md5", "md5_invoked", "xxhash64"};
 
             [JsonPropertyName("library_path")]
             public string LibraryPath {get; set;} = string.Empty;
@@ -21,6 +22,8 @@ namespace Seedr
             public string TorrentClient { get; set; } = string.Empty;
             [JsonPropertyName("torrent_client_url")]
             public string TorrentClientUrl { get; set; } = string.Empty;
+            [JsonPropertyName("hash_algo")]
+            public string HashAlgo { get; set; } = string.Empty;
 
             public void WriteConfig()
             {
@@ -36,6 +39,11 @@ namespace Seedr
                 if(!ALLOWED_CLIENTS.Any(TorrentClient.Equals))
                 {
                     Core.logger.Error($"{TorrentClient} is not supported.");
+                    Environment.Exit(1);
+                }
+                if(!SUPPORTED_HASH.Any(HashAlgo.Equals))
+                {
+                    Core.logger.Error($"{HashAlgo} is not supported.");
                     Environment.Exit(1);
                 }
             }

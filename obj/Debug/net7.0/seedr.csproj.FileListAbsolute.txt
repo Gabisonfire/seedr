@@ -44,3 +44,7 @@
 /home/gabisonfire/Documents/seedr/obj/Debug/net7.0/seedr.csproj.CopyComplete
 /home/gabisonfire/Documents/seedr/bin/Debug/net7.0/Newtonsoft.Json.dll
 /home/gabisonfire/Documents/seedr/bin/Debug/net7.0/QBittorrent.Client.dll
+/home/gabisonfire/Documents/seedr/bin/Debug/net7.0/System.Data.HashFunction.Core.dll
+/home/gabisonfire/Documents/seedr/bin/Debug/net7.0/System.Data.HashFunction.Interfaces.dll
+/home/gabisonfire/Documents/seedr/bin/Debug/net7.0/System.Data.HashFunction.xxHash.dll
+/home/gabisonfire/Documents/seedr/bin/Debug/net7.0/System.IO.Hashing.dll
