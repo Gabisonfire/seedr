@@ -3,58 +3,58 @@ using System.Text.Json.Serialization;
 using System.Linq;
 using NLog;
 
-namespace Seedr
+namespace Seedr.Utils
 {
-    public static class Utils
+
+    public class Config
     {
-        public class Config
+        public static readonly string[] ALLOWED_CLIENTS = {"transmission", "qbittorrent"};
+        public static readonly string[] SUPPORTED_HASH = {"crc32", "md5", "md5_invoked", "xxhash64"};
+
+        [JsonPropertyName("library_path")]
+        public string LibraryPath {get; set;} = string.Empty;
+        [JsonPropertyName("download_path")]
+        public string DownloadPath {get; set;} = string.Empty;
+        [JsonPropertyName("debug")]
+        public bool Debug {get; set;}
+        [JsonPropertyName("torrent_client")]
+        public string TorrentClient { get; set; } = string.Empty;
+        [JsonPropertyName("torrent_client_url")]
+        public string TorrentClientUrl { get; set; } = string.Empty;
+        [JsonPropertyName("hash_algo")]
+        public string HashAlgo { get; set; } = string.Empty;
+        [JsonPropertyName("hashing_threads")]
+        public int HashingThreads { get; set; }
+
+        public void WriteConfig()
         {
-            public static readonly string[] ALLOWED_CLIENTS = {"transmission", "qbittorrent"};
-            public static readonly string[] SUPPORTED_HASH = {"crc32", "md5", "md5_invoked", "xxhash64"};
-
-            [JsonPropertyName("library_path")]
-            public string LibraryPath {get; set;} = string.Empty;
-            [JsonPropertyName("download_path")]
-            public string DownloadPath {get; set;} = string.Empty;
-            [JsonPropertyName("debug")]
-            public bool Debug {get; set;}
-            [JsonPropertyName("torrent_client")]
-            public string TorrentClient { get; set; } = string.Empty;
-            [JsonPropertyName("torrent_client_url")]
-            public string TorrentClientUrl { get; set; } = string.Empty;
-            [JsonPropertyName("hash_algo")]
-            public string HashAlgo { get; set; } = string.Empty;
-
-            public void WriteConfig()
+            var options = new JsonSerializerOptions
             {
-                var options = new JsonSerializerOptions
-                {
-                    WriteIndented = true
-                };
-                var cfg = JsonSerializer.Serialize(this, options);
-                File.WriteAllText(Core.CONFIG_PATH, cfg);
+                WriteIndented = true
+            };
+            var cfg = JsonSerializer.Serialize(this, options);
+            File.WriteAllText(Core.CONFIG_PATH, cfg);
+        }
+        public void Validate()
+        {
+            if(!ALLOWED_CLIENTS.Any(TorrentClient.Equals))
+            {
+                Core.logger.Error($"{TorrentClient} is not supported.");
+                Environment.Exit(1);
             }
-            public void Validate()
+            if(!SUPPORTED_HASH.Any(HashAlgo.Equals))
             {
-                if(!ALLOWED_CLIENTS.Any(TorrentClient.Equals))
-                {
-                    Core.logger.Error($"{TorrentClient} is not supported.");
-                    Environment.Exit(1);
-                }
-                if(!SUPPORTED_HASH.Any(HashAlgo.Equals))
-                {
-                    Core.logger.Error($"{HashAlgo} is not supported.");
-                    Environment.Exit(1);
-                }
-            }
-
-            public void Sanitize()
-            {
-                TorrentClient =  TorrentClient.ToLower();
+                Core.logger.Error($"{HashAlgo} is not supported.");
+                Environment.Exit(1);
             }
         }
 
-        public static Config ReadConfig(string ConfigPath = Core.CONFIG_PATH)
+        public void Sanitize()
+        {
+            TorrentClient =  TorrentClient.ToLower();
+        }
+
+        public static Config Read(string ConfigPath = Core.CONFIG_PATH)
         {
             if(!File.Exists(ConfigPath))
             {
@@ -85,4 +85,5 @@ namespace Seedr
             return null;
         }
     }
+
 }

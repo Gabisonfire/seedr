@@ -4,5 +4,6 @@
   "torrent_client": "qbittorrent",
   "torrent_client_url": "http://qbt.luna.net/",
   "debug": true,
-  "hash_algo": "md5"
+  "hash_algo": "md5",
+  "hashing_threads": 400
 }

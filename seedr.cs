@@ -1,7 +1,9 @@
 ﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using NLog;
-using NLog.Config;  
+using NLog.Config;
+using NLog.Layouts;
+using Seedr.Utils;
 
 namespace Seedr
 {
@@ -14,18 +16,23 @@ namespace Seedr
         public static List<Torrent> torrentPool = new();
         public static List<Torrent> bufferTorrentPool = new();
 
+        public static List<Task> taskPool = new();
+
         public static void Main(string[] args)
         {
 
             // Setup default logging
             var logConfig = new LoggingConfiguration();
-            var logconsole = new NLog.Targets.ConsoleTarget("logconsole");
+            var logconsole = new NLog.Targets.ConsoleTarget("logconsole")
+            {
+                Layout = "${date} | ${uppercase:${level}} :: ${message}"
+            };
             logConfig.AddRule(LogLevel.Info, LogLevel.Fatal, logconsole);
             logConfig.LoggingRules[0].EnableLoggingForLevel(LogLevel.Info);
             LogManager.Configuration = logConfig;
 
             // Load config
-            config = Utils.ReadConfig();
+            config = Utils.Config.Read();
             if (config.Debug)
             {
                 logConfig.LoggingRules[0].EnableLoggingForLevel(LogLevel.Debug);
@@ -42,7 +49,16 @@ namespace Seedr
         {
             //GetTorrentsFromClient();
             torrentPool.Add(
-                new Torrent("test", "/home/gabisonfire/Downloads/lotr.zip")
+                new Torrent("lotr", "/home/gabisonfire/Downloads/lotr.zip")
+            );
+            torrentPool.Add(
+                new Torrent("lotr2", "/home/gabisonfire/Downloads/lotr2.zip")
+            );
+            torrentPool.Add(
+                new Torrent("lotr3", "/home/gabisonfire/Downloads/lotr3.zip")
+            );
+            torrentPool.Add(
+                new Torrent("lotr4", "/home/gabisonfire/Downloads/lotr4.zip")
             );
             // DEBUG
             HashAllTorrents();
@@ -71,15 +87,26 @@ namespace Seedr
 
         static void HashAllTorrents()
         {
-            bufferTorrentPool.Clear();
+            /* 
+            Clear bufferpool. We use a buffer pool because it's easier to just overwrite the original pool once all torrents were hashed.
+            */
+            bufferTorrentPool.Clear(); 
             var timer = new Stopwatch();
             logger.Info("Hashing torrents, depending on your system, this might take a while.");
             timer.Start();
-            foreach(var torrent in torrentPool)
+            // If the division equals zero, ex: 4 torrent but 10 threads allowed, we set stack size to 1 (all torrents in a single stack)
+            // which leads to all torrent being hashed on a seperate task.
+            int stackSize = torrentPool.Count()/config.HashingThreads < 1 ? 1 : torrentPool.Count()/config.HashingThreads;
+            var stacks = torrentPool.Chunk(stackSize);
+            foreach(var pool in stacks)
             {
-                logger.Debug($"Hashing: {torrent.Name}");
-                bufferTorrentPool.Add(Hashing.Hash(torrent));
+                Task t = Task.Factory.StartNew(() => HashX(pool), TaskCreationOptions.AttachedToParent);
+                taskPool.Add(t);
             }
+
+            // Wait for all threads to complete
+            Task.WaitAll(taskPool.ToArray());
+
             foreach(var torrent in bufferTorrentPool)
             {
                 logger.Debug($"Hashed torrent: {torrent}");
@@ -89,6 +116,14 @@ namespace Seedr
             torrentPool.Clear();
             torrentPool.AddRange(bufferTorrentPool);
             bufferTorrentPool.Clear();
+        }
+
+        static void HashX(IEnumerable<Torrent> pool)
+        {
+            foreach(var torrent in pool)
+            {
+                bufferTorrentPool.Add(Hashing.Hash(torrent));
+            }
         }
     }
 }
