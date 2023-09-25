@@ -25,6 +25,8 @@ namespace Seedr.Utils
         public string HashAlgo { get; set; } = string.Empty;
         [JsonPropertyName("hashing_threads")]
         public int HashingThreads { get; set; }
+        [JsonPropertyName("valid_extensions")]
+        public string[] ValidExtensions { get; set; } = new string[]{};
 
         public void WriteConfig()
         {

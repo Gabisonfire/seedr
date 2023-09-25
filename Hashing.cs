@@ -8,23 +8,20 @@ namespace Seedr
     {
         static readonly IxxHash hasher = xxHashFactory.Instance.Create();
 
-        public static Torrent Hash(Torrent torrent)
+        static List<Task> taskPool = new();
+
+        static List<IHashable> bufferPool = new();
+
+        static string Hash(string filePath)
         {
-            switch(Core.config.HashAlgo){
-                case "crc32":
-                torrent.Hash = GetChecksumCRC32(torrent.Path);
-                return torrent;
-                case "md5":
-                torrent.Hash = GetChecksumMD5(torrent.Path);
-                return torrent;
-                case "md5_invoked":
-                torrent.Hash = GetChecksumMD5Invoke(torrent.Path);
-                return torrent;
-                case "xxhash64":
-                torrent.Hash = GetChecksumxxhash64(torrent.Path);
-                return torrent;
-            }
-            return torrent;
+            return Core.config.HashAlgo switch
+            {
+                "crc32" => GetChecksumCRC32(filePath),
+                "md5" => GetChecksumMD5(filePath),
+                "md5_invoked" => GetChecksumMD5Invoke(filePath),
+                "xxhash64" => GetChecksumxxhash64(filePath),
+                _ => "",
+            };
         }
         static string GetChecksumMD5(string file)
         {
@@ -35,7 +32,7 @@ namespace Seedr
             using var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 16 * 1024 * 1024);
             byte[] checksum = hash.ComputeHash(stream);
             timer.Stop();
-            Core.logger.Debug($"MD5 Hashing completed. {timer.Elapsed}");
+            Core.logger.Debug($"MD5 Hashing completed. {file}: {timer.Elapsed}");
             return BitConverter.ToString(checksum).Replace("-", String.Empty);
         }
 
@@ -82,6 +79,51 @@ namespace Seedr
             timer.Stop();
             Core.logger.Debug($"CRC32 Hashing completed. {timer.Elapsed}");
             return BitConverter.ToString(checksum).Replace("-", String.Empty);
+        }
+
+        // Hash in threaded tasks
+        public static IEnumerable<IHashable> HashX(IEnumerable<IHashable> filePool)
+        {   
+            // Empty any existing buffer
+            bufferPool.Clear();
+            var timer = new Stopwatch();
+            Core.logger.Info("Hashing torrents, depending on your system, this might take a while.");
+            timer.Start();
+
+            // If the division equals zero, ex: 4 torrents but 10 threads allowed, we set stack size to 1 (all torrents in a single stack)
+            // which leads to all torrent being hashed on a seperate task since it will iterate over the stack.
+            int stackSize = filePool.Count()/Core.config.HashingThreads < 1 ? 1 : filePool.Count()/Core.config.HashingThreads;
+            var stacks = filePool.Chunk(stackSize);
+            foreach(var pool in stacks)
+            {
+                foreach(var torrent in pool)
+                {
+                    torrent.Hashes.Clear();
+                    
+                    foreach(var file in torrent.FilesList)
+                    {
+                        Task t = Task.Factory.StartNew(() => {
+                            torrent.Hashes.Add(new HashValue
+                            (
+                                file, Hash(file)
+                            ));
+                        });
+                        taskPool.Add(t);
+                    }
+                    bufferPool.Add(torrent);
+
+                };
+            }
+            // Wait for all threads to complete
+            Task.WaitAll(taskPool.ToArray());
+            foreach(var torrent in bufferPool)
+            {
+                Core.logger.Debug($"Hashed torrent: {torrent.Name} ({torrent.FilesList.Count()} file(s))");
+            }
+            timer.Stop();
+            Core.logger.Info($"Hashing complete. Hashed {bufferPool.Count} torrents ({taskPool.Count()} file(s)) in {timer.Elapsed} using {Core.config.HashAlgo}.");
+            taskPool.Clear();
+            return bufferPool;
         }
     }
 }

@@ -20,7 +20,7 @@ namespace Clients
             Core.torrentPool.Clear();
             foreach(var torrent in torrents)
             {
-                if(!ValidState(torrent.State)) { continue; } // Skip the torrent if not in a valid state
+                if(!Validate(torrent)) { continue; } // Skip the torrent if not valid by our set rules
                 Core.torrentPool.Add(
                     new Torrent(
                         torrent.Name,
@@ -30,7 +30,7 @@ namespace Clients
             }        
         }
 
-        public static bool ValidState(TorrentState State)
+        public static bool Validate(TorrentInfo torrent)
         {
             TorrentState[] validStates = {
                 TorrentState.ForcedUpload,
@@ -39,11 +39,11 @@ namespace Clients
                 TorrentState.Uploading,
                 TorrentState.StalledUpload
             };
-            if(validStates.Contains(State))
+            if(!validStates.Contains(torrent.State))
             {
-                return true;
+                return false;
             }
-            return false;
+            return true;
         }
     }
 }

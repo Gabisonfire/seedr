@@ -1,9 +1,15 @@
 {
   "library_path": "/mnt/movies/movies",
   "download_path": "Some path",
+  "valid_extensions": [
+    ".mkv",
+    ".mp4",
+    ".avi",
+    ".zip"
+  ],
   "torrent_client": "qbittorrent",
   "torrent_client_url": "http://qbt.luna.net/",
   "debug": true,
   "hash_algo": "md5",
-  "hashing_threads": 400
+  "hashing_threads": 20
 }

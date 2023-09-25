@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Reflection.Metadata;
 using Microsoft.Data.Sqlite;
+using NLog;
 
 namespace Seedr
 {
@@ -30,17 +31,12 @@ namespace Seedr
         {
             Core.logger.Info("Creating required schema");
             string query = @"
-            CREATE TABLE download_files 
+            CREATE TABLE media_files 
             (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 path TEXT UNIQUE NOT NULL,
-                hash TEXT UNIQUE
-            );
-            CREATE TABLE library_files 
-            (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                path TEXT UNIQUE NOT NULL,
-                hash TEXT UNIQUE
+                hash TEXT,
+                source TEXT NOT NULL
             );
             ";
             var command = connection.CreateCommand();
@@ -53,6 +49,25 @@ namespace Seedr
             var command = connection.CreateCommand();
             command.CommandText = query;
             command.ExecuteNonQuery();
+        }
+
+        public static void WriteMany(string[] queries)
+        {
+            var transaction = connection.BeginTransaction();
+            var command = connection.CreateCommand();
+            foreach(var query in queries)
+            {
+                command.CommandText = query;
+                command.ExecuteNonQuery();
+            }
+            try {
+                transaction.Commit();
+            }
+            catch(Exception e)
+            {
+                Core.logger.Error($"Error writing to database. {e.Message}");
+                transaction.Rollback();
+            }
         }
     }
 }
