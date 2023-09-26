@@ -1,7 +1,10 @@
 ﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Xml;
+using Microsoft.VisualBasic;
 using NLog;
 using NLog.Config;
+using NLog.LayoutRenderers;
 using NLog.Layouts;
 using Seedr.Utils;
 
@@ -30,7 +33,7 @@ namespace Seedr
             LogManager.Configuration = logConfig;
 
             // Load config
-            config = Utils.Config.Read();
+            config = Config.Read();
             if (config.Debug)
             {
                 logConfig.LoggingRules[0].EnableLoggingForLevel(LogLevel.Debug);
@@ -67,9 +70,15 @@ namespace Seedr
             // DEBUG
             //HashAllTorrents();
             //WriteHashes();
-            RefreshFilesFromLibrary();
-            HashAllLibraryFiles();
-            WriteHashes(libraryFilesPool.ToList<IHashable>());
+            // RefreshFilesFromLibrary();
+            // HashAllLibraryFiles();
+            // WriteHashes(libraryFilesPool.ToList<IHashable>());
+            // foreach (var hash in Database.ReadAllHashesFromDB("library"))
+            // {
+            //     Console.WriteLine(hash);
+            // }
+            var removed = FindRemovedTorrents();
+            Console.WriteLine(removed.Length);
         }
 
         static void WriteHashes(List<IHashable> hashesToWrite)
@@ -90,7 +99,7 @@ namespace Seedr
             switch(config.TorrentClient)
             {
                 case "qbittorrent":
-                Clients.Qbittorrent.FetchTorrents();
+                torrentPool = Clients.Qbittorrent.FetchTorrents();
                 break;
             }
         }
@@ -119,9 +128,27 @@ namespace Seedr
         static void HashAllLibraryFiles()
         {
             // DEBUG
-            libraryFilesPool = libraryFilesPool.GetRange(0,6);
+            libraryFilesPool = libraryFilesPool.GetRange(0,3);
             //
             Hashing.HashX(libraryFilesPool);
+        }
+
+        static Torrent[] FindRemovedTorrents()
+        {
+            var onDisk = Database.ReadAllHashesFromDB("torrent");
+            var inClient = Clients.Qbittorrent.FetchTorrents();
+            var buffer = inClient;
+            foreach(var hash in onDisk)
+            {
+                foreach(var torrent in inClient)
+                {
+                    if(torrent.FilesList.Contains(hash.FilePath))
+                    {
+                        buffer.Remove(torrent);   
+                    }
+                }
+            }
+            return buffer.ToArray();
         }
     }
 }

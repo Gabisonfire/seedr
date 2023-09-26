@@ -11,5 +11,15 @@
   "torrent_client_url": "http://qbt.luna.net/",
   "debug": true,
   "hash_algo": "md5",
-  "hashing_threads": 20
+  "hashing_threads": 20,
+  "path_remappers": [
+    {
+      "path": "/mnt/series",
+      "remap_path": "/mnt/data/_Series"
+    },
+    {
+      "path": "/mnt/torrents",
+      "remap_path": "/mnt/data/Torrents"
+    }
+  ]
 }

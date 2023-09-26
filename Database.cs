@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Data;
 using System.IO;
 using System.Reflection.Metadata;
 using Microsoft.Data.Sqlite;
@@ -68,6 +69,25 @@ namespace Seedr
                 Core.logger.Error($"Error writing to database. {e.Message}");
                 transaction.Rollback();
             }
+        }
+
+
+        public static HashValue[] ReadAllHashesFromDB(string source)
+        {
+            List<HashValue> hashes = new();
+            var query = @"
+            SELECT path, hash FROM media_files WHERE source=$source
+            ";
+            var command = new SqliteCommand(query, connection);
+            command.Parameters.AddWithValue("$source", source);
+            var reader = command.ExecuteReader();
+            while(reader.Read())
+            {
+                hashes.Add(new HashValue(
+                    reader.GetString(0), reader.GetString(1)
+                ));
+            }
+            return hashes.ToArray();
         }
     }
 }

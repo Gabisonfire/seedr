@@ -12,22 +12,23 @@ namespace Clients
         static readonly Uri uri = new(Core.config.TorrentClientUrl);
         static QBittorrentClient qbt = new(uri);
 
-        public static void FetchTorrents()
+        public static List<Torrent> FetchTorrents()
         {
             var fetch = qbt.GetTorrentListAsync();
             fetch.Wait();
             IReadOnlyList<TorrentInfo> torrents = fetch.Result;
-            Core.torrentPool.Clear();
+            var torrentList = new List<Torrent>();
             foreach(var torrent in torrents)
             {
                 if(!Validate(torrent)) { continue; } // Skip the torrent if not valid by our set rules
-                Core.torrentPool.Add(
+                torrentList.Add(
                     new Torrent(
                         torrent.Name,
                         torrent.ContentPath
                     )
                 );
-            }        
+            }
+            return torrentList;
         }
 
         public static bool Validate(TorrentInfo torrent)

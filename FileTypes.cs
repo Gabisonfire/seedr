@@ -1,3 +1,5 @@
+using Seedr.Utils;
+
 namespace Seedr 
 {
 
@@ -6,6 +8,7 @@ namespace Seedr
         public string Name {get;}
         public List<HashValue> Hashes {get;set;}
         public string[] FilesList {get; set;}
+        public string[] RealFilesList {get; set;}
         public string ToMySQL();
     }
 
@@ -14,6 +17,7 @@ namespace Seedr
         public string Name {get;} = string.Empty;
         public List<HashValue> Hashes {get;set;} = new List<HashValue>();
         public string[] FilesList {get; set;} = new string[]{};
+        public string[] RealFilesList {get; set;} = new string[]{};
 
         public LibraryFile(string Name, string file)
         {
@@ -45,14 +49,17 @@ namespace Seedr
     {
         public string Name {get;} = string.Empty;
         public string TorrentPath {get;} = string.Empty;
+        public string RealTorrentPath {get;} = string.Empty;
         public string[] FilesList {get; set;} = new string[]{};
+        public string[] RealFilesList {get; set;} = new string[]{};
         public List<HashValue> Hashes {get;set;} = new List<HashValue>();
 
 
         public Torrent(string Name, string TorrentPath)
         {
             this.Name = Name;
-            this.TorrentPath = TorrentPath;
+            RealTorrentPath = TorrentPath;
+            this.TorrentPath = Config.Remap(TorrentPath);
             FileAttributes attr = File.GetAttributes(this.TorrentPath);
             if(attr.HasFlag(FileAttributes.Directory)){
                 FilesList = Directory.GetFiles(this.TorrentPath, "*", SearchOption.AllDirectories);
@@ -89,7 +96,7 @@ namespace Seedr
             {
                 query +=
                 @$"
-                INSERT OR REPLACE INTO download_files('path', 'hash', 'source') VALUES('{hash.FilePath}', '{hash.FileHash}', 'torrent');
+                INSERT OR REPLACE INTO media_files('path', 'hash', 'source') VALUES('{hash.FilePath}', '{hash.FileHash}', 'torrent');
                 " + Environment.NewLine; 
             }
             return query;

@@ -82,7 +82,7 @@ namespace Seedr
         }
 
         // Hash in threaded tasks
-        public static IEnumerable<IHashable> HashX(IEnumerable<IHashable> filePool)
+        public static IEnumerable<IHashable> HashX(IEnumerable<IHashable> filePool, bool WriteToDB = true)
         {   
             // Empty any existing buffer
             bufferPool.Clear();
@@ -107,6 +107,7 @@ namespace Seedr
                             (
                                 file, Hash(file)
                             ));
+                            if(WriteToDB){Database.Write(torrent.ToMySQL());} // Write directly the hash when computed.
                         });
                         taskPool.Add(t);
                     }

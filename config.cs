@@ -5,8 +5,15 @@ using NLog;
 
 namespace Seedr.Utils
 {
+    public partial class Remapper
+    {
+        [JsonPropertyName("path")]
+        public string Path {get; set;} = string.Empty;
+        [JsonPropertyName("remap_path")]
+        public string RemapPath {get; set;} = string.Empty;
+    }
 
-    public class Config
+    public partial class Config
     {
         public static readonly string[] ALLOWED_CLIENTS = {"transmission", "qbittorrent"};
         public static readonly string[] SUPPORTED_HASH = {"crc32", "md5", "md5_invoked", "xxhash64"};
@@ -27,6 +34,8 @@ namespace Seedr.Utils
         public int HashingThreads { get; set; }
         [JsonPropertyName("valid_extensions")]
         public string[] ValidExtensions { get; set; } = new string[]{};
+        [JsonPropertyName("path_remappers")]
+        public Remapper[] PathRemappers { get; set; } = new Remapper[]{};
 
         public void WriteConfig()
         {
@@ -85,6 +94,23 @@ namespace Seedr.Utils
                 Environment.Exit(1);
             }
             return null;
+        }
+
+        /* 
+        Remap function on all paths for case where the client and app sit on a different
+        server than the data host.
+        */
+        public static string Remap(string filePath)
+        {
+            string buffer = "";
+            foreach(var remap in Core.config.PathRemappers)
+            {
+                //Console.WriteLine(buffer);
+                buffer = filePath.Replace(remap.Path, remap.RemapPath);
+                //Console.WriteLine(buffer);
+            }
+            Console.WriteLine(buffer);
+            return buffer;
         }
     }
 
