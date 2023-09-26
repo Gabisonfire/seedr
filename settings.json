@@ -20,6 +20,14 @@
     {
       "path": "/mnt/torrents",
       "remap_path": "/mnt/data/Torrents"
+    },
+    {
+      "path": "/mnt/movies",
+      "remap_path": "/mnt/data/_Films"
     }
+  ],
+  "exclude_torrent_path":
+  [
+    "/mnt/games"
   ]
 }

@@ -4,6 +4,7 @@ using QBittorrent;
 using QBittorrent.Client;
 using Seedr;
 using System.Linq;
+using Seedr.Utils;
 
 namespace Clients
 {
@@ -33,6 +34,10 @@ namespace Clients
 
         public static bool Validate(TorrentInfo torrent)
         {
+            if(Core.config.ExcludeTorrentPath.Any(o => torrent.ContentPath.StartsWith(o))) // Remove any torrent that starts with excluded paths.
+            {
+                return false;
+            }
             TorrentState[] validStates = {
                 TorrentState.ForcedUpload,
                 TorrentState.PausedUpload,

@@ -34,6 +34,8 @@ namespace Seedr.Utils
         public int HashingThreads { get; set; }
         [JsonPropertyName("valid_extensions")]
         public string[] ValidExtensions { get; set; } = new string[]{};
+        [JsonPropertyName("exclude_torrent_path")]
+        public string[] ExcludeTorrentPath { get; set; } = new string[]{};
         [JsonPropertyName("path_remappers")]
         public Remapper[] PathRemappers { get; set; } = new Remapper[]{};
 
@@ -102,15 +104,11 @@ namespace Seedr.Utils
         */
         public static string Remap(string filePath)
         {
-            string buffer = "";
             foreach(var remap in Core.config.PathRemappers)
             {
-                //Console.WriteLine(buffer);
-                buffer = filePath.Replace(remap.Path, remap.RemapPath);
-                //Console.WriteLine(buffer);
+                filePath = filePath.Replace(remap.Path, remap.RemapPath);
             }
-            Console.WriteLine(buffer);
-            return buffer;
+            return filePath;
         }
     }
 
