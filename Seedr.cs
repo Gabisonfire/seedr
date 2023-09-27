@@ -69,16 +69,17 @@ namespace Seedr
             );
             // DEBUG
             //HashAllTorrents();
-            //WriteHashes();
-            // RefreshFilesFromLibrary();
-            // HashAllLibraryFiles();
+            //RefreshFilesFromLibrary();
+            //HashAllLibraryFiles();
+            var h = Database.FindDuplicates();
             // WriteHashes(libraryFilesPool.ToList<IHashable>());
             // foreach (var hash in Database.ReadAllHashesFromDB("library"))
             // {
             //     Console.WriteLine(hash);
             // }
-            var removed = FindRemovedTorrents();
-            Console.WriteLine(removed.Length);
+            // var removed = FindRemovedTorrents();
+            // Console.WriteLine(removed.Length);
+            Database.MarkForDeletion(torrentPool[0].Hashes.First().FileHash);
         }
 
         static void WriteHashes(List<IHashable> hashesToWrite)
@@ -133,18 +134,18 @@ namespace Seedr
             Hashing.HashX(libraryFilesPool);
         }
 
-        static Torrent[] FindRemovedTorrents()
+        static HashValue[] FindRemovedTorrents()
         {
-            var onDisk = Database.ReadAllHashesFromDB("torrent");
+            var inDB = Database.ReadAllHashesFromDB("torrent");
             var inClient = Clients.Qbittorrent.FetchTorrents();
-            var buffer = inClient;
-            foreach(var hash in onDisk)
+            var buffer = inDB.ToList();
+            foreach(var hash in inDB)
             {
                 foreach(var torrent in inClient)
                 {
                     if(torrent.FilesList.Contains(hash.FilePath))
                     {
-                        buffer.Remove(torrent);   
+                        buffer.Remove(hash);
                     }
                 }
             }

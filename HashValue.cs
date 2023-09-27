@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Seedr.Utils;
 
 namespace Seedr
@@ -15,12 +16,21 @@ namespace Seedr
             this.FileHash = FileHash;
             RealPath = FilePath;
             this.FilePath = Config.Remap(FilePath);
-            Console.WriteLine(this.FilePath);
         }
 
         public override string ToString()
         {
             return $"{FilePath}: {FileHash}";
+        }
+
+        public static implicit operator Torrent(HashValue hash)
+        {
+            var t = new Torrent(
+                hash.FilePath,
+                hash.FilePath  
+            );
+            t.Hashes.Add(hash);
+            return t;
         }
     }
 }

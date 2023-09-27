@@ -1,7 +1,9 @@
 using System.ComponentModel;
 using System.Data;
 using System.IO;
+using System.Net;
 using System.Reflection.Metadata;
+using System.Runtime.CompilerServices;
 using Microsoft.Data.Sqlite;
 using NLog;
 
@@ -28,6 +30,17 @@ namespace Seedr
             }
         }
 
+        public class KVP
+        {
+            public string Key = string.Empty;
+            public string Value = string.Empty;
+            public KVP(string k, string v)
+            {
+                Key = k;
+                Value = v;
+            }
+        }
+
         static void CreateMainTables()
         {
             Core.logger.Info("Creating required schema");
@@ -37,7 +50,8 @@ namespace Seedr
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 path TEXT UNIQUE NOT NULL,
                 hash TEXT,
-                source TEXT NOT NULL
+                source TEXT NOT NULL,
+                for_deletion INT
             );
             ";
             var command = connection.CreateCommand();
@@ -50,6 +64,30 @@ namespace Seedr
             var command = connection.CreateCommand();
             command.CommandText = query;
             command.ExecuteNonQuery();
+        }
+
+        public static void Write(string query, List<KVP> values)
+        {
+            var command = connection.CreateCommand();
+            command.CommandText = query;
+            foreach(var v in values)
+            {
+                command.Parameters.AddWithValue(v.Key, v.Value);
+            }
+            command.ExecuteNonQuery();
+        }
+
+        public static void Write(string query, KVP values)
+        {
+            Write(query, new List<KVP>(){values});
+        }
+
+        public static void MarkForDeletion(string hash)
+        {
+            string query = @"
+            UPDATE media_files SET for_deletion = 1 WHERE hash=$hash
+            ";
+            Write(query, new KVP("$hash", hash));
         }
 
         public static void WriteMany(string[] queries)
@@ -77,6 +115,34 @@ namespace Seedr
             List<HashValue> hashes = new();
             var query = @"
             SELECT path, hash FROM media_files WHERE source=$source
+            ";
+            var command = new SqliteCommand(query, connection);
+            command.Parameters.AddWithValue("$source", source);
+            var reader = command.ExecuteReader();
+            while(reader.Read())
+            {
+                hashes.Add(new HashValue(
+                    reader.GetString(0), reader.GetString(1)
+                ));
+            }
+            return hashes.ToArray();
+        }
+
+        public static HashValue[] FindDuplicates(string source = "both")
+        {
+            List<HashValue> hashes = new();
+            if(source == "both") {source = "%";}
+            var query = @"
+            SELECT 
+                t.path,
+                t.hash,
+                ( SELECT COUNT(hash) 
+                FROM media_files ct 
+                WHERE ct.hash = t.hash
+                ) as counter
+            FROM
+            media_files t
+            WHERE counter > 1 AND source LIKE $source
             ";
             var command = new SqliteCommand(query, connection);
             command.Parameters.AddWithValue("$source", source);
