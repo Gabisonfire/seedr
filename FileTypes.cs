@@ -8,7 +8,6 @@ namespace Seedr
         public string Name {get;}
         public List<HashValue> Hashes {get;set;}
         public string[] FilesList {get; set;}
-        public string[] RealFilesList {get; set;}
         public string ToMySQL();
     }
 
@@ -17,7 +16,6 @@ namespace Seedr
         public string Name {get;} = string.Empty;
         public List<HashValue> Hashes {get;set;} = new List<HashValue>();
         public string[] FilesList {get; set;} = new string[]{};
-        public string[] RealFilesList {get; set;} = new string[]{};
 
         public LibraryFile(string Name, string file)
         {
@@ -38,7 +36,7 @@ namespace Seedr
             {
                 query +=
                 @$"
-                INSERT OR REPLACE INTO media_files('path', 'hash', 'source') VALUES('{hash.FilePath}', '{hash.FileHash}', 'library');
+                INSERT OR REPLACE INTO media_files('mapped_path', 'real_path', 'hash', 'source') VALUES('{hash.FilePath}', '{hash.RealPath}', '{hash.FileHash}', 'library');
                 " + Environment.NewLine; 
             }
             return query;
@@ -49,24 +47,25 @@ namespace Seedr
     {
         public string Name {get;} = string.Empty;
         public string TorrentPath {get;} = string.Empty;
-        public string RealTorrentPath {get;} = string.Empty;
+        public string MappedTorrentPath {get; set;} = string.Empty;
         public string[] FilesList {get; set;} = new string[]{};
-        public string[] RealFilesList {get; set;} = new string[]{};
         public List<HashValue> Hashes {get;set;} = new List<HashValue>();
 
 
         public Torrent(string Name, string TorrentPath)
         {
             this.Name = Name;
-            RealTorrentPath = TorrentPath;
-            this.TorrentPath = Config.Remap(TorrentPath);
-            FileAttributes attr = File.GetAttributes(this.TorrentPath);
+            this.TorrentPath = TorrentPath;
+            MappedTorrentPath = Config.Remap(TorrentPath);
+            FileAttributes attr = File.GetAttributes(MappedTorrentPath);
             if(attr.HasFlag(FileAttributes.Directory)){
-                FilesList = Directory.GetFiles(this.TorrentPath, "*", SearchOption.AllDirectories);
+                // Here we populate the file list from the mapped path because we need the directory info right away
+                // but later in HashX, it will get remapped to we want to store the "real" path back. True here reverts the mapping.
+                FilesList = Directory.GetFiles(MappedTorrentPath, "*", SearchOption.AllDirectories).Select(x => Config.Remap(x, true)).ToArray();
             }
             else
             {
-                FilesList = new string[]{this.TorrentPath};
+                FilesList = new string[]{TorrentPath};
             }
             FilterByExtension();
         }
@@ -96,7 +95,7 @@ namespace Seedr
             {
                 query +=
                 @$"
-                INSERT OR REPLACE INTO media_files('path', 'hash', 'source') VALUES('{hash.FilePath}', '{hash.FileHash}', 'torrent');
+                INSERT OR REPLACE INTO media_files('mapped_path', 'real_path', 'hash', 'source') VALUES('{hash.FilePath}', '{hash.RealPath}', '{hash.FileHash}', 'torrent');
                 " + Environment.NewLine; 
             }
             return query;

@@ -36,7 +36,7 @@ namespace Seedr.Utils
         public string[] ValidExtensions { get; set; } = new string[]{};
         [JsonPropertyName("exclude_torrent_path")]
         public string[] ExcludeTorrentPath { get; set; } = new string[]{};
-        [JsonPropertyName("path_remappers")]
+        [JsonPropertyName("torrent_path_remappers")]
         public Remapper[] PathRemappers { get; set; } = new Remapper[]{};
 
         public void WriteConfig()
@@ -102,11 +102,19 @@ namespace Seedr.Utils
         Remap function on all paths for case where the client and app sit on a different
         server than the data host.
         */
-        public static string Remap(string filePath)
+        public static string Remap(string filePath, bool reverse = false)
         {
             foreach(var remap in Core.config.PathRemappers)
             {
-                filePath = filePath.Replace(remap.Path, remap.RemapPath);
+                if(reverse)
+                {
+                    filePath = filePath.Replace(remap.RemapPath, remap.Path);
+                }
+                else 
+                {
+                    filePath = filePath.Replace(remap.Path, remap.RemapPath);
+                }
+                
             }
             return filePath;
         }

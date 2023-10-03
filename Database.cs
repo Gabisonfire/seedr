@@ -48,7 +48,8 @@ namespace Seedr
             CREATE TABLE media_files 
             (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                path TEXT UNIQUE NOT NULL,
+                mapped_path TEXT UNIQUE NOT NULL,
+                real_path TEXT UNIQUE NOT NULL,
                 hash TEXT,
                 source TEXT NOT NULL,
                 for_deletion INT
@@ -114,7 +115,7 @@ namespace Seedr
         {
             List<HashValue> hashes = new();
             var query = @"
-            SELECT path, hash FROM media_files WHERE source=$source
+            SELECT mapped_path, real_path, hash FROM media_files WHERE source=$source
             ";
             var command = new SqliteCommand(query, connection);
             command.Parameters.AddWithValue("$source", source);
@@ -122,19 +123,20 @@ namespace Seedr
             while(reader.Read())
             {
                 hashes.Add(new HashValue(
-                    reader.GetString(0), reader.GetString(1)
+                    reader.GetString(0), reader.GetString(1), reader.GetString(2)
                 ));
             }
             return hashes.ToArray();
         }
 
-        public static HashValue[] FindDuplicates(string source = "both")
+        public static HashValue[] GetDuplicateHashes(string source = "both")
         {
             List<HashValue> hashes = new();
             if(source == "both") {source = "%";}
             var query = @"
             SELECT 
-                t.path,
+                t.mapped_path,
+                t.real_path
                 t.hash,
                 ( SELECT COUNT(hash) 
                 FROM media_files ct 
@@ -150,7 +152,7 @@ namespace Seedr
             while(reader.Read())
             {
                 hashes.Add(new HashValue(
-                    reader.GetString(0), reader.GetString(1)
+                    reader.GetString(0), reader.GetString(1), reader.GetString(2)
                 ));
             }
             return hashes.ToArray();

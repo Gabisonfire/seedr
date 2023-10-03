@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Data.HashFunction.xxHash;
+using Seedr.Utils;
 
 namespace Seedr
 {
@@ -99,13 +100,14 @@ namespace Seedr
                 foreach(var torrent in pool)
                 {
                     torrent.Hashes.Clear();
-                    
                     foreach(var file in torrent.FilesList)
                     {
                         Task t = Task.Factory.StartNew(() => {
+                            var remap = Config.Remap(file);
+                            var hash = Hash(remap);
                             torrent.Hashes.Add(new HashValue
                             (
-                                file, Hash(file)
+                                remap, file, hash
                             ));
                             if(WriteToDB){Database.Write(torrent.ToMySQL());} // Write directly the hash when computed.
                         });

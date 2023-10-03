@@ -52,26 +52,38 @@ namespace Seedr
         static void ProcessTorrents()
         {
             //RefreshTorrentsFromClient();
+            // torrentPool.Add(
+            //     new Torrent("lotr", "/home/gabisonfire/Downloads/lotr")
+            // );
+            // torrentPool.Add(
+            //     new Torrent("lotr2", "/home/gabisonfire/Downloads/lotr.zip")
+            // );
+            // torrentPool.Add(
+            //     new Torrent("lotr2", "/home/gabisonfire/Downloads/lotr2.zip")
+            // );
+            // torrentPool.Add(
+            //     new Torrent("lotr3", "/home/gabisonfire/Downloads/lotr3.zip")
+            // );
             torrentPool.Add(
-                new Torrent("lotr", "/home/gabisonfire/Downloads/lotr")
+                new Torrent("gf", "/mnt/torrents/Hijack.2023.S01E05.MULTI.1080p.10bit.WEBRip.6CH.x265.HEVC-Elcrackito.mkv")
             );
-            torrentPool.Add(
-                new Torrent("lotr2", "/home/gabisonfire/Downloads/lotr.zip")
-            );
-            torrentPool.Add(
-                new Torrent("lotr2", "/home/gabisonfire/Downloads/lotr2.zip")
-            );
-            torrentPool.Add(
-                new Torrent("lotr3", "/home/gabisonfire/Downloads/lotr3.zip")
-            );
-            torrentPool.Add(
-                new Torrent("lotr4", "/home/gabisonfire/Downloads/lotr4.zip")
-            );
+            // libraryFilesPool.Add(
+            //     new LibraryFile("test", "/home/gabisonfire/Downloads/lotr.zip")
+            // );
+            // libraryFilesPool.Add(
+            //     new LibraryFile("test", "/home/gabisonfire/Downloads/lotr2.zip")
+            // );
+            // libraryFilesPool.Add(
+            //     new LibraryFile("test", "/home/gabisonfire/Downloads/lotr3.zip")
+            // );
+            // libraryFilesPool.Add(
+            //     new LibraryFile("test", "/home/gabisonfire/Downloads/lotr4.zip")
+            // );
             // DEBUG
-            //HashAllTorrents();
+            HashAllTorrents();
             //RefreshFilesFromLibrary();
-            //HashAllLibraryFiles();
-            var h = Database.FindDuplicates();
+            // HashAllLibraryFiles();
+            
             // WriteHashes(libraryFilesPool.ToList<IHashable>());
             // foreach (var hash in Database.ReadAllHashesFromDB("library"))
             // {
@@ -79,7 +91,8 @@ namespace Seedr
             // }
             // var removed = FindRemovedTorrents();
             // Console.WriteLine(removed.Length);
-            Database.MarkForDeletion(torrentPool[0].Hashes.First().FileHash);
+            //Database.MarkForDeletion(torrentPool[0].Hashes.First().FileHash);.
+            
         }
 
         static void WriteHashes(List<IHashable> hashesToWrite)
@@ -150,6 +163,15 @@ namespace Seedr
                 }
             }
             return buffer.ToArray();
+        }
+
+        static void FindDuplicatesForSymlinking()
+        {
+            var hashes = Database.GetDuplicateHashes();
+            foreach(var hash in hashes)
+            {
+                Console.WriteLine(hash.ToString());
+            }
         }
     }
 }

@@ -7,30 +7,25 @@ namespace Seedr
     {
         public string FilePath {get;} = string.Empty;
         public string FileHash {get;set;} = string.Empty;
+        public string RealPath {get;set;} = string.Empty;
 
-        public string RealPath {get;} = string.Empty;
+        // public HashValue(string FilePath, string FileHash)
+        // {
+        //     this.FileHash = FileHash;
+        //     RealPath = FilePath;
+        //     this.FilePath = Config.Remap(FilePath);
+        // }
 
-        public HashValue(string FilePath, string FileHash)
+        public HashValue(string FilePath, string RealPath, string FileHash)
         {
             this.FilePath = FilePath;
             this.FileHash = FileHash;
-            RealPath = FilePath;
-            this.FilePath = Config.Remap(FilePath);
+            this.RealPath = RealPath;
         }
 
         public override string ToString()
         {
             return $"{FilePath}: {FileHash}";
-        }
-
-        public static implicit operator Torrent(HashValue hash)
-        {
-            var t = new Torrent(
-                hash.FilePath,
-                hash.FilePath  
-            );
-            t.Hashes.Add(hash);
-            return t;
         }
     }
 }
