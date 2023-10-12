@@ -10,6 +10,7 @@
   "torrent_client": "qbittorrent",
   "torrent_client_url": "http://qbt.luna.net/",
   "debug": true,
+  "delete_after_linking": false,
   "hash_algo": "md5",
   "hashing_threads": 20,
   "torrent_path_remappers": [
@@ -20,10 +21,6 @@
     {
       "path": "/mnt/torrents",
       "remap_path": "/mnt/data/Torrents"
-    },
-    {
-      "path": "/mnt/movies",
-      "remap_path": "/mnt/data/_Films"
     }
   ],
   "exclude_torrent_path":

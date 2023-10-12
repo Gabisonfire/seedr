@@ -38,6 +38,8 @@ namespace Seedr.Utils
         public string[] ExcludeTorrentPath { get; set; } = new string[]{};
         [JsonPropertyName("torrent_path_remappers")]
         public Remapper[] PathRemappers { get; set; } = new Remapper[]{};
+        [JsonPropertyName("delete_after_linking")]
+        public bool DeleteAfterLinking {get; set;}
 
         public void WriteConfig()
         {
@@ -46,8 +48,16 @@ namespace Seedr.Utils
                 WriteIndented = true
             };
             var cfg = JsonSerializer.Serialize(this, options);
-            File.WriteAllText(Core.CONFIG_PATH, cfg);
+            Core.logger.Debug($"Writing config {Core.CONFIG_PATH}");
+            try {
+                File.WriteAllText(Core.CONFIG_PATH, cfg);
+            }
+            catch(Exception e)
+            {
+                Core.logger.Error(e.Message);
+            }
         }
+
         public void Validate()
         {
             if(!ALLOWED_CLIENTS.Any(TorrentClient.Equals))
@@ -99,13 +109,14 @@ namespace Seedr.Utils
         }
 
         /* 
-        Remap function on all paths for case where the client and app sit on a different
+        Remap function on all paths for cases where the client and app sit on a different
         server than the data host.
         */
         public static string Remap(string filePath, bool reverse = false)
         {
             foreach(var remap in Core.config.PathRemappers)
             {
+                Core.logger.Debug($"Remapping {filePath}");
                 if(reverse)
                 {
                     filePath = filePath.Replace(remap.RemapPath, remap.Path);
@@ -114,10 +125,16 @@ namespace Seedr.Utils
                 {
                     filePath = filePath.Replace(remap.Path, remap.RemapPath);
                 }
-                
+                Core.logger.Debug($"remapped to {filePath}");   
             }
             return filePath;
         }
     }
 
+    public static class FileSource
+    {
+        public const string Torrent = "torrent";
+        public const string Library = "library";
+        public const string All = "all";
+    }
 }

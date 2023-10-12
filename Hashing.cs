@@ -9,9 +9,9 @@ namespace Seedr
     {
         static readonly IxxHash hasher = xxHashFactory.Instance.Create();
 
-        static List<Task> taskPool = new();
+        static readonly List<Task> taskPool = new();
 
-        static List<IHashable> bufferPool = new();
+        static readonly List<IHashable> bufferPool = new();
 
         static string Hash(string filePath)
         {
@@ -83,12 +83,12 @@ namespace Seedr
         }
 
         // Hash in threaded tasks
-        public static IEnumerable<IHashable> HashX(IEnumerable<IHashable> filePool, bool WriteToDB = true)
+        public static IEnumerable<IHashable> HashX(IEnumerable<IHashable> filePool, string fileSource, bool WriteToDB = true)
         {   
             // Empty any existing buffer
             bufferPool.Clear();
             var timer = new Stopwatch();
-            Core.logger.Info("Hashing torrents, depending on your system, this might take a while.");
+            Core.logger.Info("Hashing files, depending on your system, this might take a while.");
             timer.Start();
 
             // If the division equals zero, ex: 4 torrents but 10 threads allowed, we set stack size to 1 (all torrents in a single stack)
@@ -107,7 +107,7 @@ namespace Seedr
                             var hash = Hash(remap);
                             torrent.Hashes.Add(new HashValue
                             (
-                                remap, file, hash
+                                remap, file, hash, fileSource
                             ));
                             if(WriteToDB){Database.Write(torrent.ToMySQL());} // Write directly the hash when computed.
                         });
@@ -117,6 +117,7 @@ namespace Seedr
 
                 };
             }
+            Core.logger.Debug($"Running {taskPool.Count()} threads...");
             // Wait for all threads to complete
             Task.WaitAll(taskPool.ToArray());
             foreach(var torrent in bufferPool)

@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Xml;
+using Microsoft.Data.Sqlite;
 using Microsoft.VisualBasic;
 using NLog;
 using NLog.Config;
@@ -65,11 +66,11 @@ namespace Seedr
             //     new Torrent("lotr3", "/home/gabisonfire/Downloads/lotr3.zip")
             // );
             torrentPool.Add(
-                new Torrent("gf", "/mnt/torrents/Hijack.2023.S01E05.MULTI.1080p.10bit.WEBRip.6CH.x265.HEVC-Elcrackito.mkv")
+                new Torrent("gf", "/mnt/torrents/seedr-test.mkv")
             );
-            // libraryFilesPool.Add(
-            //     new LibraryFile("test", "/home/gabisonfire/Downloads/lotr.zip")
-            // );
+            libraryFilesPool.Add(
+                new LibraryFile("test", "/mnt/movies/movies/seedr-test-notogtitle.mkv")
+            );
             // libraryFilesPool.Add(
             //     new LibraryFile("test", "/home/gabisonfire/Downloads/lotr2.zip")
             // );
@@ -80,18 +81,13 @@ namespace Seedr
             //     new LibraryFile("test", "/home/gabisonfire/Downloads/lotr4.zip")
             // );
             // DEBUG
-            HashAllTorrents();
+            //HashAllTorrents();
             //RefreshFilesFromLibrary();
-            // HashAllLibraryFiles();
+            //HashAllLibraryFiles();
             
-            // WriteHashes(libraryFilesPool.ToList<IHashable>());
-            // foreach (var hash in Database.ReadAllHashesFromDB("library"))
-            // {
-            //     Console.WriteLine(hash);
-            // }
-            // var removed = FindRemovedTorrents();
-            // Console.WriteLine(removed.Length);
-            //Database.MarkForDeletion(torrentPool[0].Hashes.First().FileHash);.
+            //SymLinkDupes();
+            FindNewFilesForHashing();
+            
             
         }
 
@@ -136,20 +132,18 @@ namespace Seedr
 
         static void HashAllTorrents()
         {
-            Hashing.HashX(torrentPool);
+            Hashing.HashX(torrentPool, FileSource.Torrent);
         }
 
         static void HashAllLibraryFiles()
         {
-            // DEBUG
-            libraryFilesPool = libraryFilesPool.GetRange(0,3);
-            //
-            Hashing.HashX(libraryFilesPool);
+            Hashing.HashX(libraryFilesPool, FileSource.Library);
         }
 
+        // Find torrents removed from client, remove them from the database
         static HashValue[] FindRemovedTorrents()
         {
-            var inDB = Database.ReadAllHashesFromDB("torrent");
+            var inDB = Database.ReadAllHashesFromDB(FileSource.Torrent);
             var inClient = Clients.Qbittorrent.FetchTorrents();
             var buffer = inDB.ToList();
             foreach(var hash in inDB)
@@ -162,16 +156,55 @@ namespace Seedr
                     }
                 }
             }
+            foreach(var t in buffer)
+            {
+                Database.Delete(t.FileHash, t.FilePath);
+            }
             return buffer.ToArray();
         }
 
-        static void FindDuplicatesForSymlinking()
+
+        // Sym link duplicates found
+        static void SymLinkDupes()
         {
-            var hashes = Database.GetDuplicateHashes();
-            foreach(var hash in hashes)
+            var dupes = Database.GetDuplicateHashes(FileSource.All);
+            var pairs = dupes.GroupBy(x => x.FileHash)
+            .Where(g => g.Count() > 1)
+            .Select(y => y)
+            .ToList();
+            foreach(var groups in pairs)
             {
-                Console.WriteLine(hash.ToString());
+                var src = groups.ToList()[0].Source == FileSource.Torrent ? groups.ToList()[0]: groups.ToList()[1];
+                var target = groups.ToList()[0].Source == FileSource.Library ? groups.ToList()[0]: groups.ToList()[1];
+                File.Move(src.FilePath, $"{src.FilePath}.seedr.delete");
+                File.CreateSymbolicLink(src.FilePath, target.FilePath);
+                if(config.DeleteAfterLinking)
+                {
+                    File.Delete($"{src.FilePath}.seedr.delete");
+                }
+                //Console.WriteLine($"Create {src.FilePath}, targets {target.FilePath}");
             }
+        }
+
+        static void FindNewFilesForHashing(string source = FileSource.All)
+        {
+            List<IHashable> fullBuffer = new();
+            if(source == FileSource.All || source == FileSource.Library)
+            {
+                RefreshFilesFromLibrary();
+                fullBuffer.AddRange(libraryFilesPool);
+            }
+            if(source == FileSource.All || source == FileSource.Library)
+            {
+                RefreshTorrentsFromClient();
+                fullBuffer.AddRange(torrentPool);
+            }
+            List<SqliteCommand> commands = new();
+            foreach(var file in fullBuffer)
+            {
+                commands.AddRange(file.ToMySQLCommands(SQLInsertMode.ignore, true));
+            }
+            Database.WriteCommands(commands.ToArray());
         }
     }
 }
