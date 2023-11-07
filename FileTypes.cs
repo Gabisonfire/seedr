@@ -14,13 +14,15 @@ namespace Seedr
         public string[] FilesList {get; set;}
         public string ToMySQL(SQLInsertMode sqlInsertMode = SQLInsertMode.replace, bool newFile = false);
         public SqliteCommand[] ToMySQLCommands(SQLInsertMode sqlInsertMode = SQLInsertMode.replace, bool newFile = false);
+        public string FileType {get;}
     }
 
     public class LibraryFile : IHashable
     {
         public string Name {get;} = string.Empty;
         public List<HashValue> Hashes {get;set;} = new List<HashValue>();
-        public string[] FilesList {get; set;} = new string[]{};
+        public string[] FilesList {get; set;} = Array.Empty<string>();
+        public string FileType {get;} =  FileSource.Library;
 
         public LibraryFile(string Name, string file)
         {
@@ -101,8 +103,9 @@ namespace Seedr
         public string Name {get;} = string.Empty;
         public string TorrentPath {get;} = string.Empty;
         public string MappedTorrentPath {get; set;} = string.Empty;
-        public string[] FilesList {get; set;} = new string[]{};
+        public string[] FilesList {get; set;} = Array.Empty<string>();
         public List<HashValue> Hashes {get;set;} = new List<HashValue>();
+        public string FileType {get; } =  FileSource.Torrent;
 
 
         public Torrent(string Name, string TorrentPath)

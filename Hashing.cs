@@ -82,6 +82,12 @@ namespace Seedr
             return BitConverter.ToString(checksum).Replace("-", String.Empty);
         }
 
+        /*
+        Might have had this wrong,
+        in this setup, a task is created for each torrent
+        What should actually happen is that each task should loop over a list of files instead (like a foreach)
+        and hash sequentially, otherwise we are threading the whole thing.
+        */
         // Hash in threaded tasks
         public static IEnumerable<IHashable> HashX(IEnumerable<IHashable> filePool, string fileSource, bool WriteToDB = true)
         {   
@@ -117,12 +123,12 @@ namespace Seedr
 
                 };
             }
-            Core.logger.Debug($"Running {taskPool.Count()} threads...");
+            Core.logger.Debug($"Running {taskPool.Count} threads...");
             // Wait for all threads to complete
             Task.WaitAll(taskPool.ToArray());
             foreach(var torrent in bufferPool)
             {
-                Core.logger.Debug($"Hashed torrent: {torrent.Name} ({torrent.FilesList.Count()} file(s))");
+                Core.logger.Debug($"Hashed file: {torrent.Name} ({torrent.FilesList.Length} file(s))");
             }
             timer.Stop();
             Core.logger.Info($"Hashing complete. Hashed {bufferPool.Count} torrents ({taskPool.Count()} file(s)) in {timer.Elapsed} using {Core.config.HashAlgo}.");

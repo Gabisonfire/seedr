@@ -217,5 +217,27 @@ namespace Seedr
             }
             return hashes.ToArray();
         }
+
+        public static List<IHashable> GetUnhashedFiles()
+        {
+            List<IHashable> allFiles = new();
+            var query = @"
+            SELECT real_path,source FROM media_files WHERE hash IS NULL;
+            ";
+            var command = new SqliteCommand(query, connection);
+            var reader = command.ExecuteReader();
+            while(reader.Read())
+            {
+                string path = reader.GetString(0);
+                string source = reader.GetString(1);
+                if(source == FileSource.Library){
+                    allFiles.Add(new LibraryFile(path));
+                }
+                if(source == FileSource.Torrent){
+                    allFiles.Add(new Torrent("", path));
+                }
+            }
+            return allFiles;
+        }
     }
 }

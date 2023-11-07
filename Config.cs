@@ -33,11 +33,11 @@ namespace Seedr.Utils
         [JsonPropertyName("hashing_threads")]
         public int HashingThreads { get; set; }
         [JsonPropertyName("valid_extensions")]
-        public string[] ValidExtensions { get; set; } = new string[]{};
+        public string[] ValidExtensions { get; set; } = Array.Empty<string>();
         [JsonPropertyName("exclude_torrent_path")]
-        public string[] ExcludeTorrentPath { get; set; } = new string[]{};
+        public string[] ExcludeTorrentPath { get; set; } = Array.Empty<string>();
         [JsonPropertyName("torrent_path_remappers")]
-        public Remapper[] PathRemappers { get; set; } = new Remapper[]{};
+        public Remapper[] PathRemappers { get; set; } = Array.Empty<Remapper>();
         [JsonPropertyName("delete_after_linking")]
         public bool DeleteAfterLinking {get; set;}
 

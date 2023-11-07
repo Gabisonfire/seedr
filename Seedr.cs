@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Data.HashFunction.xxHash;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Xml;
 using Microsoft.Data.Sqlite;
@@ -86,7 +87,8 @@ namespace Seedr
             //HashAllLibraryFiles();
             
             //SymLinkDupes();
-            FindNewFilesForHashing();
+            //FindNewFilesForHashing();
+            HashNewFiles();
             
             
         }
@@ -186,6 +188,7 @@ namespace Seedr
             }
         }
 
+        // Add files to db without a hash value
         static void FindNewFilesForHashing(string source = FileSource.All)
         {
             List<IHashable> fullBuffer = new();
@@ -205,6 +208,16 @@ namespace Seedr
                 commands.AddRange(file.ToMySQLCommands(SQLInsertMode.ignore, true));
             }
             Database.WriteCommands(commands.ToArray());
+        }
+
+        static void HashNewFiles()
+        {
+            List<IHashable> allFiles = Database.GetUnhashedFiles();
+            foreach(var group in allFiles.GroupBy(x => x.FileType))
+            {
+                Hashing.HashX(group, group.Key);
+            }
+            
         }
     }
 }
