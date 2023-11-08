@@ -12,7 +12,7 @@
   "debug": true,
   "delete_after_linking": false,
   "hash_algo": "md5",
-  "hashing_threads": 2,
+  "hashing_threads": 10,
   "torrent_path_remappers": [
     {
       "path": "/mnt/series",

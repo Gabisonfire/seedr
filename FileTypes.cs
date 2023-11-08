@@ -87,7 +87,7 @@ namespace Seedr
                     {
                         CommandText = $"INSERT OR {operation} INTO media_files('mapped_path', 'real_path', 'hash', 'source') VALUES($file_path, $real_path, $hash, 'library')"
                     };
-                    cmd.Parameters.AddWithValue("$file_path", hash.FileHash);
+                    cmd.Parameters.AddWithValue("$file_path", hash.FilePath);
                     cmd.Parameters.AddWithValue("$real_path", hash.RealPath);
                     cmd.Parameters.AddWithValue("$hash", hash.FileHash);
                     commandsBuffer.Add(cmd);
@@ -207,7 +207,7 @@ namespace Seedr
                     {
                         CommandText = $"INSERT OR {operation} INTO media_files($file_path, $real_path, $hash, 'source') VALUES('$file_path', '$real_path', '$hash', 'torrent')"
                     };
-                    cmd.Parameters.AddWithValue("$file_path", hash.FileHash);
+                    cmd.Parameters.AddWithValue("$file_path", hash.FilePath);
                     cmd.Parameters.AddWithValue("$real_path", hash.RealPath);
                     cmd.Parameters.AddWithValue("$hash", hash.FileHash);
                     commandsBuffer.Add(cmd);
