@@ -56,7 +56,7 @@ namespace Seedr
                 {
                     query +=
                     @$"
-                    INSERT OR {operation} INTO media_files('mapped_path', 'real_path', 'hash', 'source') VALUES('{hash.FilePath}', '{hash.RealPath}', '{hash.FileHash}', 'library');
+                    INSERT OR {operation} INTO media_files('mapped_path', 'real_path', 'hash', 'source', 'filesize') VALUES('{hash.FilePath}', '{hash.RealPath}', '{hash.FileHash}', 'library', '{hash.FileSize}');
                     " + Environment.NewLine; 
                 }
             }
@@ -85,11 +85,12 @@ namespace Seedr
                 {
                     var cmd = new SqliteCommand
                     {
-                        CommandText = $"INSERT OR {operation} INTO media_files('mapped_path', 'real_path', 'hash', 'source') VALUES($file_path, $real_path, $hash, 'library')"
+                        CommandText = $"INSERT OR {operation} INTO media_files('mapped_path', 'real_path', 'hash', 'source','filesize') VALUES($file_path, $real_path, $hash, 'library', $filesize)"
                     };
                     cmd.Parameters.AddWithValue("$file_path", hash.FilePath);
                     cmd.Parameters.AddWithValue("$real_path", hash.RealPath);
                     cmd.Parameters.AddWithValue("$hash", hash.FileHash);
+                    cmd.Parameters.AddWithValue("$filesize", hash.FileSize);
                     commandsBuffer.Add(cmd);
                 }
             }
@@ -106,7 +107,6 @@ namespace Seedr
         public string[] FilesList {get; set;} = Array.Empty<string>();
         public List<HashValue> Hashes {get;set;} = new List<HashValue>();
         public string FileType {get; } =  FileSource.Torrent;
-
 
         public Torrent(string Name, string TorrentPath)
         {
@@ -176,7 +176,7 @@ namespace Seedr
                 {
                     query +=
                     @$"
-                    INSERT OR {operation} INTO media_files('mapped_path', 'real_path', 'hash', 'source') VALUES('{hash.FilePath}', '{hash.RealPath}', '{hash.FileHash}', 'torrent');
+                    INSERT OR {operation} INTO media_files('mapped_path', 'real_path', 'hash', 'source', 'filesize') VALUES('{hash.FilePath}', '{hash.RealPath}', '{hash.FileHash}', 'torrent', '{hash.FileSize}');
                     " + Environment.NewLine; 
                 }
             }
@@ -205,11 +205,12 @@ namespace Seedr
                 {
                     var cmd = new SqliteCommand
                     {
-                        CommandText = $"INSERT OR {operation} INTO media_files($file_path, $real_path, $hash, 'source') VALUES('$file_path', '$real_path', '$hash', 'torrent')"
+                        CommandText = $"INSERT OR {operation} INTO media_files($file_path, $real_path, $hash, 'source', 'filesize') VALUES($file_path, $real_path, $hash, 'torrent', $filesize)"
                     };
                     cmd.Parameters.AddWithValue("$file_path", hash.FilePath);
                     cmd.Parameters.AddWithValue("$real_path", hash.RealPath);
                     cmd.Parameters.AddWithValue("$hash", hash.FileHash);
+                    cmd.Parameters.AddWithValue("$filesize", hash.FileSize);
                     commandsBuffer.Add(cmd);
                 }
             }

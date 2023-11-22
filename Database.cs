@@ -53,7 +53,7 @@ namespace Seedr
                 real_path TEXT UNIQUE NOT NULL,
                 hash TEXT,
                 source TEXT NOT NULL,
-                for_deletion INT
+                filesize INTEGER
             );
             ";
             var command = connection.CreateCommand();
@@ -174,7 +174,7 @@ namespace Seedr
         {
             List<HashValue> hashes = new();
             var query = @"
-            SELECT mapped_path, real_path, hash FROM media_files WHERE source=$source
+            SELECT mapped_path, real_path, hash, filesize FROM media_files WHERE source=$source
             ";
             var command = new SqliteCommand(query, connection);
             command.Parameters.AddWithValue("$source", source);
@@ -182,7 +182,7 @@ namespace Seedr
             while(reader.Read())
             {
                 hashes.Add(new HashValue(
-                    reader.GetString(0), reader.GetString(1), reader.GetString(2), reader.GetString(3)
+                    reader.GetString(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetInt64(4)
                 ));
             }
             return hashes.ToArray();
@@ -198,6 +198,7 @@ namespace Seedr
                 t.real_path,
                 t.hash,
                 t.source,
+                t.filesize,
                 (SELECT COUNT(hash) 
                 FROM media_files ct 
                 WHERE ct.hash = t.hash
@@ -212,7 +213,7 @@ namespace Seedr
             while(reader.Read())
             {
                 hashes.Add(new HashValue(
-                    reader.GetString(0), reader.GetString(1), reader.GetString(2), reader.GetString(3)
+                    reader.GetString(0), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetInt64(4)
                 ));
             }
             return hashes.ToArray();

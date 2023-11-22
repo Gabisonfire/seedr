@@ -9,6 +9,7 @@ namespace Seedr
         public string FileHash {get;set;} = string.Empty;
         public string RealPath {get;set;} = string.Empty;
         public string Source {get;set;} = string.Empty;
+        public long FileSize {get; set;} = 0;
 
         // public HashValue(string FilePath, string FileHash)
         // {
@@ -17,12 +18,13 @@ namespace Seedr
         //     this.FilePath = Config.Remap(FilePath);
         // }
 
-        public HashValue(string FilePath, string RealPath, string FileHash, string Source)
+        public HashValue(string FilePath, string RealPath, string FileHash, string Source, long FileSize)
         {
             this.FilePath = FilePath;
             this.FileHash = FileHash;
             this.RealPath = RealPath;
             this.Source = Source;
+            this.FileSize = FileSize;
         }
 
         public override string ToString()
@@ -42,17 +44,4 @@ namespace Seedr
             this.FromLibrary = FromLibrary;
         }
     }
-
-    // public class SimpleFileRef
-    // {
-    //     public string RealPath {get;} = string.Empty;
-    //     public string Source {get;} = string.Empty;
-
-    //     public SimpleFileRef(string RealPath, string Source)
-    //     {
-    //         this.RealPath = RealPath;
-    //         this.Source = Source;
-    //     }
-    // }
-
 }

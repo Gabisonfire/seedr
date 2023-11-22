@@ -128,10 +128,14 @@ namespace Seedr
                     foreach(var file in torrent.FilesList)
                     {
                             var remap = Config.Remap(file);
+                            long fsize = 0;
+                            try {
+                                fsize = new FileInfo(remap).Length;
+                            } catch {} // Just ignore it here as the hash process will handle this.
                             var hash = Hash(remap);
                             torrent.Hashes.Add(new HashValue
                             (
-                                remap, file, hash, fileSource
+                                remap, file, hash, fileSource, fsize
                             ));
                             if(WriteToDB){Database.WriteCommands(torrent.ToMySQLCommands());} // Write directly the hash when computed.
                     }

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "PMbbIDBHXQkopDFYktI3ok0r0nO/I7SAvT+CQYlgmdpo9P+2XmnFjQ3djEJjyOD93qZCzcVyl1/2cDr71sHHjQ==",
+  "dgSpecHash": "bGSKIlIE5VKvGSJcq07bUE5r2/9ozQD2YMIDG/vRyY4oJJxvemt1qmyKXQTA3EPaV4yM8j4psM1dnfjTTkt/ag==",
   "success": true,
   "projectFilePath": "/home/gabisonfire/Documents/seedr/seedr.csproj",
   "expectedPackageFiles": [
@@ -91,7 +91,7 @@
     "/home/gabisonfire/.nuget/packages/system.threading.timer/4.3.0/system.threading.timer.4.3.0.nupkg.sha512",
     "/home/gabisonfire/.nuget/packages/system.xml.readerwriter/4.3.0/system.xml.readerwriter.4.3.0.nupkg.sha512",
     "/home/gabisonfire/.nuget/packages/system.xml.xdocument/4.3.0/system.xml.xdocument.4.3.0.nupkg.sha512",
-    "/home/gabisonfire/.nuget/packages/microsoft.aspnetcore.app.ref/7.0.11/microsoft.aspnetcore.app.ref.7.0.11.nupkg.sha512"
+    "/home/gabisonfire/.nuget/packages/microsoft.aspnetcore.app.ref/7.0.13/microsoft.aspnetcore.app.ref.7.0.13.nupkg.sha512"
   ],
   "logs": []
 }
